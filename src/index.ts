@@ -1,4 +1,4 @@
-import { camelize, kebabize } from "./util.js";
+import { camelize, kebabize } from './util.js';
 
 type Constructor = new (...args: any[]) => {};
 
@@ -16,21 +16,14 @@ export function Attribute({ observed }: { observed?: boolean } = {}) {
     const attribute = { propertyKey };
     target.componentAttributes ??= [];
 
-    const isIn = target.componentAttributes.find(
-      (a: WannabeAttribute) => a.propertyKey === attribute.propertyKey
-    );
+    const isIn = target.componentAttributes.find((a: WannabeAttribute) => a.propertyKey === attribute.propertyKey);
 
     if (!isIn) {
       target.componentAttributes.push(attribute);
     }
 
     if (observed) {
-      target.observedAttributes = [
-        ...new Set([
-          ...(target.observedAttributes ?? []),
-          kebabize(propertyKey),
-        ]),
-      ];
+      target.observedAttributes = [...new Set([...(target.observedAttributes ?? []), kebabize(propertyKey)])];
     }
   };
 }
@@ -45,10 +38,9 @@ export function Watch(attributes: string | string[] = []) {
       attributes = !Array.isArray(attributes) ? [attributes] : attributes;
       attributes.forEach((attr) => {
         Attribute({ observed: true })(target, attr);
-        const componentAttribute: WannabeAttribute =
-          target.componentAttributes.find(
-            (a: WannabeAttribute) => a.propertyKey === attr
-          );
+        const componentAttribute: WannabeAttribute = target.componentAttributes.find(
+          (a: WannabeAttribute) => a.propertyKey === attr
+        );
 
         componentAttribute.watchFn = propertyKey;
       });
@@ -79,9 +71,7 @@ export function Component<T extends Constructor>(Base: T) {
       Object.entries(props).forEach(([key, value]) => {
         const cK = camelize(key);
 
-        const isAttribute = Base.prototype.componentAttributes.find(
-          (a: WannabeAttribute) => a.propertyKey === cK
-        );
+        const isAttribute = Base.prototype.componentAttributes.find((a: WannabeAttribute) => a.propertyKey === cK);
         const isMember = cK in this;
 
         if (!isAttribute && isMember) {
@@ -89,44 +79,34 @@ export function Component<T extends Constructor>(Base: T) {
         }
       });
 
-      Base.prototype.componentAttributes?.forEach(
-        (attribute: WannabeAttribute) => {
-          const { propertyKey } = attribute;
-          const propertyIsBoolean = typeof this[propertyKey] === "boolean";
+      Base.prototype.componentAttributes?.forEach((attribute: WannabeAttribute) => {
+        const { propertyKey } = attribute;
+        const propertyIsBoolean = typeof this[propertyKey] === 'boolean';
 
-          const attributeDefault =
-            props[kebabize(propertyKey)] ||
-            Object.getOwnPropertyDescriptor(this, propertyKey)?.value;
+        const attributeDefault =
+          props[kebabize(propertyKey)] || Object.getOwnPropertyDescriptor(this, propertyKey)?.value;
 
-          Object.defineProperty(this, propertyKey, {
-            get: () =>
-              propertyIsBoolean
-                ? this.hasAttribute(kebabize(propertyKey))
-                : this.getAttribute(kebabize(propertyKey)) ?? attributeDefault,
-            set: (value: any) => {
-              if (
-                value === null ||
-                value === undefined ||
-                (propertyIsBoolean && (value === false || value === "false"))
-              ) {
-                this.removeAttribute(kebabize(propertyKey));
-              } else {
-                this.setAttribute(
-                  kebabize(propertyKey),
-                  propertyIsBoolean ? "" : value
-                );
-              }
-            },
-          });
-        }
-      );
+        Object.defineProperty(this, propertyKey, {
+          get: () =>
+            propertyIsBoolean
+              ? this.hasAttribute(kebabize(propertyKey))
+              : this.getAttribute(kebabize(propertyKey)) ?? attributeDefault,
+          set: (value: any) => {
+            if (
+              value === null ||
+              value === undefined ||
+              (propertyIsBoolean && (value === false || value === 'false'))
+            ) {
+              this.removeAttribute(kebabize(propertyKey));
+            } else {
+              this.setAttribute(kebabize(propertyKey), propertyIsBoolean ? '' : value);
+            }
+          },
+        });
+      });
     }
 
-    async attributeChangedCallback(
-      attributeName: string,
-      oldValue: any,
-      newValue: any
-    ) {
+    async attributeChangedCallback(attributeName: string, oldValue: any, newValue: any) {
       if (oldValue !== newValue) {
         const watchFn = Base.prototype.componentAttributes?.find(
           (a: WannabeAttribute) => a.propertyKey === camelize(attributeName)

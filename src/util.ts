@@ -1,12 +1,10 @@
 export const kebabize = (str: string) => {
   return str
-    .split("")
+    .split('')
     .map((letter, idx) => {
-      return letter.toUpperCase() === letter
-        ? `${idx !== 0 ? "-" : ""}${letter.toLowerCase()}`
-        : letter;
+      return letter.toUpperCase() === letter ? `${idx !== 0 ? '-' : ''}${letter.toLowerCase()}` : letter;
     })
-    .join("");
+    .join('');
 };
 
 export const capitalize = (str: string) => {
@@ -15,9 +13,9 @@ export const capitalize = (str: string) => {
 
 export const camelize = (str: string) => {
   return str
-    .split("-")
+    .split('-')
     .map((word, idx) => {
       return idx === 0 ? word.toLowerCase() : capitalize(word);
     })
-    .join("");
+    .join('');
 };
