@@ -77,6 +77,30 @@ class MyComponent extends HTMLElement {
     ...
   }
 
+  get someAttribute() {
+    return this.getAttribute('some-attribute');
+  }
+
+  set someObservedAttribute(value) {
+    if ( value ) {
+      this.setAttribute('some-attribute', value);
+    } else {
+      this.removeAttribute('some-attribute');
+    }
+  }
+
+  get someBooleanAttribute() {
+    return this.hasAttribute('some-boolean-attribute');
+  }
+
+  set someBooleanAttribute(value) {
+    if ( value ) {
+      this.setAttribute('some-boolean-attribute', '');
+    } else {
+      this.removeAttribute('some-boolean-attribute');
+    }
+  }
+
   get someObservedAttribute() {
     return this.getAttribute('some-observed-attribute');
   }
@@ -91,8 +115,12 @@ class MyComponent extends HTMLElement {
 
   attributeChangedCallback(attributeName, oldVal, newVal) {
     if ( attributeName === 'some-observed-attribute') {
-      // do stuff
+      this.someFunction();
     }
+  }
+
+  someFunction() {
+    // call me when "someObservedAttribute" changes
   }
 }
 ```
