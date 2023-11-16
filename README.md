@@ -20,10 +20,13 @@ The small WebC.js lib aims at making that process easier giving you some kind of
 @Component
 class MyComponent extends HTMLElement {
   @Attribute()
-  someAttribute;
+  someAttribute = "defaultValue";
 
   @Attribute({ observed: true })
-  someObservedAttribute;
+  someObservedAttribute = "";
+
+  @Attribute()
+  someBooleanAttribute = false;
 
   constructor() {
     ...
