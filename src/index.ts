@@ -18,11 +18,19 @@ export function Attribute({ observed }: { observed?: boolean } = {}) {
 
     const isIn = target.componentAttributes.find((a: WannabeAttribute) => a.propertyKey === attribute.propertyKey);
 
+    /**
+     * Add the attribute name to a temporary array called componentAttributes
+     * that is later used by the Component decorator
+     */
     if (!isIn) {
       target.componentAttributes.push(attribute);
     }
 
     if (observed) {
+      /**
+       * If observed, add the attribute name to a temporary array called
+       * observedAttributes that is later used by the Component decorator
+       */
       target.observedAttributes = [...new Set([...(target.observedAttributes ?? []), kebabize(propertyKey)])];
     }
   };
@@ -42,6 +50,11 @@ export function Watch(attributes: string | string[] = []) {
           (a: WannabeAttribute) => a.propertyKey === attr
         );
 
+        /**
+         * Enhance the object in the temporary array called componentAttributes
+         * with a property called watchFn. This property is later used by the
+         * Component decorator
+         */
         componentAttribute.watchFn = propertyKey;
       });
     } catch (e) {
@@ -56,9 +69,18 @@ export function Watch(attributes: string | string[] = []) {
  * into a powerhouse of a webcomponent
  */
 export function Component<T extends Constructor>(Base: T) {
+  /**
+   * Return a new class that extends the given Base class
+   * which acts as the webcomponent
+   */
   return class Component extends Base {
     [key: string]: any;
 
+    /**
+     * The static observedAttributes getter is used by the webcomponent
+     * to fire the attributeChangedCallback whenever an attribute
+     * in the array changes its value
+     */
     static get observedAttributes() {
       return Base.prototype.observedAttributes ?? [];
     }
@@ -68,6 +90,10 @@ export function Component<T extends Constructor>(Base: T) {
 
       const props = args[0] ?? {};
 
+      /**
+       * If additional props are handed into the component add
+       * them as properties to the component
+       */
       Object.entries(props).forEach(([key, value]) => {
         const cK = camelize(key);
 
@@ -79,6 +105,11 @@ export function Component<T extends Constructor>(Base: T) {
         }
       });
 
+      /**
+       * Create getters and setters for each attribute that is
+       * defined in the componentAttributes array (which was created
+       * by the Attribute decorator before)
+       */
       Base.prototype.componentAttributes?.forEach((attribute: WannabeAttribute) => {
         const { propertyKey } = attribute;
         const propertyIsBoolean = typeof this[propertyKey] === 'boolean';
@@ -106,6 +137,10 @@ export function Component<T extends Constructor>(Base: T) {
       });
     }
 
+    /**
+     * The attributeChangedCallback is called whenever an attribute
+     * in the observedAttributes array changes its value
+     */
     async attributeChangedCallback(attributeName: string, oldValue: any, newValue: any) {
       if (oldValue !== newValue) {
         const watchFn = Base.prototype.componentAttributes?.find(
