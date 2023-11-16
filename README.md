@@ -34,10 +34,60 @@ class MyComponent extends HTMLElement {
   }
 
   @Watch('someObservedAttribute')
-  someFunction() {
+  someFunction(oldValue, newValue) {
     // call me when "someObservedAttribute" changes
   }
 
   ...
+}
+```
+
+From the outside you can reach your components attributes like the following:
+
+```ts
+const myComp = document.querySelector('my-component');
+const asMember = myComp.someAttribute;
+const asFunction = myComp.getAttribute('some-attribute');
+```
+
+With this approach you don't need to add repetitive code:
+
+- getters & setters
+- static observedAttributes
+- attributeChangedCallback
+
+Without the decorators your webcomponent would look something like this:
+
+```ts
+class MyComponent extends HTMLElement {
+  static get observedAttributes() {
+    return ['some-observed-attribute'];
+  }
+
+  constructor() {
+    ...
+  }
+
+  connectedCallback() {
+    ...
+  }
+
+  get someObservedAttribute() {
+    return this.getAttribute('some-observed-attribute');
+  }
+
+  set someObservedAttribute(value) {
+    if ( value ) {
+      this.setAttribute('some-observed-attribute', value);
+    } else {
+      this.removeAttribute('some-observed-attribute');
+    }
+  }
+
+  attributeChangedCallback(attributeName, oldVal, newVal) {
+    if ( attributeName === 'some-observed-attribute') {
+      // do stuff
+    }
+  }
 }
 ```
