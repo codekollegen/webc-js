@@ -40,6 +40,8 @@ class MyComponent extends HTMLElement {
 
   ...
 }
+
+customElements.define('my-component', MyComponent)
 ```
 
 From the outside you can reach your components attributes like the following:
