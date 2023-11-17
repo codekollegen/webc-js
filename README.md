@@ -7,7 +7,7 @@ If you don't know what a custom webcomponent is, i highly recommend getting into
 ## Install
 
 ```sh
-pnpm i -D webc-js
+pnpm i -D webcjs
 ```
 
 ## Usage
