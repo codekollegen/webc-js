@@ -113,15 +113,23 @@ export function Component<T extends Constructor>(Base: T) {
       Base.prototype.componentAttributes?.forEach((attribute: WannabeAttribute) => {
         const { propertyKey } = attribute;
         const propertyIsBoolean = typeof this[propertyKey] === 'boolean';
+        const propertyIsNumber = typeof this[propertyKey] === 'number';
 
         const attributeDefault =
           props[kebabize(propertyKey)] || Object.getOwnPropertyDescriptor(this, propertyKey)?.value;
 
         Object.defineProperty(this, propertyKey, {
-          get: () =>
-            propertyIsBoolean
-              ? this.hasAttribute(kebabize(propertyKey))
-              : this.getAttribute(kebabize(propertyKey)) ?? attributeDefault,
+          get: () => {
+            if (propertyIsBoolean) {
+              return this.hasAttribute(kebabize(propertyKey));
+            }
+
+            if (propertyIsNumber) {
+              return parseInt(this.getAttribute(kebabize(propertyKey))) ?? attributeDefault;
+            }
+
+            return this.getAttribute(kebabize(propertyKey)) ?? attributeDefault;
+          },
           set: (value: any) => {
             if (
               value === null ||
