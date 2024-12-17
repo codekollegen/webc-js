@@ -1,6 +1,6 @@
 {
   "name": "webcjs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A collection of decorators to use in web components to ease and standardize the process of creating a custom webcomponent with typescript.",
   "author": {
     "name": "Henning Rothe",

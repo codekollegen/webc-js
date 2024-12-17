@@ -125,7 +125,11 @@ export function Component<T extends Constructor>(Base: T) {
             }
 
             if (propertyIsNumber) {
-              return parseInt(this.getAttribute(kebabize(propertyKey))) ?? attributeDefault;
+              if (this.getAttribute(kebabize(propertyKey))) {
+                return parseInt(this.getAttribute(kebabize(propertyKey)));
+              }
+
+              return attributeDefault;
             }
 
             return this.getAttribute(kebabize(propertyKey)) ?? attributeDefault;
