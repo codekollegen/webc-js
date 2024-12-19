@@ -11,10 +11,17 @@ type WannabeAttribute = {
  * Will add an attribute to the webcomponent that has
  * getters and setters
  */
-export function Attribute({ observed }: { observed?: boolean } = {}) {
+export function Attribute() {
   return function (target: any, propertyKey: string) {
     const attribute = { propertyKey };
-    target.componentAttributes ??= [];
+
+    if (!Object.getOwnPropertyNames(target).includes('componentAttributes')) {
+      Object.defineProperty(target, 'componentAttributes', {
+        value: [],
+        configurable: true,
+        writable: true,
+      });
+    }
 
     const isIn = target.componentAttributes.find((a: WannabeAttribute) => a.propertyKey === attribute.propertyKey);
 
@@ -24,14 +31,6 @@ export function Attribute({ observed }: { observed?: boolean } = {}) {
      */
     if (!isIn) {
       target.componentAttributes.push(attribute);
-    }
-
-    if (observed) {
-      /**
-       * If observed, add the attribute name to a temporary array called
-       * observedAttributes that is later used by the Component decorator
-       */
-      target.observedAttributes = [...new Set([...(target.observedAttributes ?? []), kebabize(propertyKey)])];
     }
   };
 }
@@ -45,7 +44,7 @@ export function Watch(attributes: string | string[] = []) {
     try {
       attributes = !Array.isArray(attributes) ? [attributes] : attributes;
       attributes.forEach((attr) => {
-        Attribute({ observed: true })(target, attr);
+        Attribute()(target, attr);
         const componentAttribute: WannabeAttribute = target.componentAttributes.find(
           (a: WannabeAttribute) => a.propertyKey === attr
         );
@@ -82,7 +81,13 @@ export function Component<T extends Constructor>(Base: T) {
      * in the array changes its value
      */
     static get observedAttributes() {
-      return Base.prototype.observedAttributes ?? [];
+      return Base.prototype.componentAttributes?.reduce((acc: string[], curr: WannabeAttribute) => {
+        if (curr.watchFn) {
+          acc.push(kebabize(curr.propertyKey));
+        }
+
+        return acc;
+      }, []);
     }
 
     constructor(...args: any[]) {

@@ -1,8 +1,5 @@
-import { beforeEach } from 'vitest';
-import { it } from 'vitest';
-import { describe } from 'vitest';
+import { expect, describe, it, beforeEach } from 'vitest';
 import { Attribute, Component, Watch } from './index.ts';
-import { expect } from 'vitest';
 
 describe('Decorators', () => {
   let target;
@@ -18,24 +15,16 @@ describe('Decorators', () => {
     expect(target.observedAttributes).toBeUndefined();
   });
 
-  it('should prepare observerd attribute', () => {
-    Attribute({ observed: true })(target, 'test');
+  it('should prepare observed attribute', () => {
+    Watch('test')(target, 'watcherFn');
 
-    expect(target.componentAttributes).toEqual([{ propertyKey: 'test' }]);
-    expect(target.observedAttributes).toEqual(['test']);
-  });
-
-  it('should prepare a watched function member', () => {
-    Watch('test')(target, 'watchedFn');
-
-    expect(target.componentAttributes).toEqual([{ propertyKey: 'test', watchFn: 'watchedFn' }]);
-    expect(target.observedAttributes).toEqual(['test']);
+    expect(target.componentAttributes).toEqual([{ propertyKey: 'test', watchFn: 'watcherFn' }]);
   });
 
   it('should create a webcomponent class', () => {
     const c = class Element extends HTMLElement {};
-    Attribute({ observed: true })(c.prototype, 'fooBar');
-    Attribute({ observed: true })(c.prototype, 'bacon');
+    Watch('fooBar')(c.prototype, 'fooBarWatcherFn');
+    Watch('bacon')(c.prototype, 'baconWatcherFn');
 
     const comp = Component(c);
 
