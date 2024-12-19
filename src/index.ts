@@ -145,6 +145,7 @@ export function Component<T extends Constructor>(Base: T) {
               this.setAttribute(kebabize(propertyKey), propertyIsBoolean ? '' : value);
             }
           },
+          configurable: true,
         });
       });
     }
